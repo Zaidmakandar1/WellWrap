@@ -1,0 +1,510 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Healthcare Portal{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold mb-1" style="color: var(--primary-color);">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Health Dashboard
+                </h2>
+                <p class="text-muted mb-0">
+                    Welcome back, {{ current_user.first_name }}! Here's your health overview.
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('upload_report') }}" class="btn btn-primary-custom">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>
+                    Upload Report
+                </a>
+                <button class="btn btn-outline-primary" onclick="refreshDashboard()" style="border-radius: 25px;">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Health Overview Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="stats-card">
+            <i class="fas fa-file-medical stats-icon"></i>
+            <div class="stats-number">{{ total_reports }}</div>
+            <div class="stats-label">Total Reports</div>
+            <small class="text-muted">Lifetime medical reports</small>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6">
+        <div class="stats-card">
+            <i class="fas fa-heart stats-icon" style="color: var(--danger-color);"></i>
+            <div class="stats-number">{{ avg_health_score }}</div>
+            <div class="stats-label">Health Score</div>
+            <small class="text-muted">
+                {% if avg_health_score and avg_health_score >= 85 %}
+                    <span class="text-success">Excellent</span>
+                {% elif avg_health_score and avg_health_score >= 70 %}
+                    <span class="text-success">Good</span>
+                {% elif avg_health_score and avg_health_score >= 55 %}
+                    <span class="text-warning">Fair</span>
+                {% else %}
+                    <span class="text-danger">Needs Attention</span>
+                {% endif %}
+            </small>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6">
+        <div class="stats-card">
+            <i class="fas fa-pills stats-icon" style="color: var(--warning-color);"></i>
+            <div class="stats-number">{{ active_medications }}</div>
+            <div class="stats-label">Active Medications</div>
+            <small class="text-muted">Current prescriptions</small>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6">
+        <div class="stats-card">
+            <i class="fas fa-calendar-check stats-icon" style="color: var(--info-color);"></i>
+            <div class="stats-number">{{ upcoming_appointments|length }}</div>
+            <div class="stats-label">Upcoming Appointments</div>
+            <small class="text-muted">Next 30 days</small>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="row g-4">
+    <!-- Recent Reports -->
+    <div class="col-lg-8">
+        <div class="card card-custom h-100">
+            <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-medical me-2"></i>
+                    Recent Medical Reports
+                </h5>
+                <a href="{{ url_for('patient_history') }}" class="btn btn-sm btn-outline-light">
+                    View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if recent_reports %}
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>Report Type</th>
+                                <th>Date</th>
+                                <th>Health Score</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in recent_reports %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if report.report_type == 'Blood Test' %}
+                                            <i class="fas fa-tint me-2 text-danger"></i>
+                                        {% elif report.report_type == 'Lipid Panel' %}
+                                            <i class="fas fa-heart me-2 text-warning"></i>
+                                        {% elif report.report_type == 'Thyroid Function' %}
+                                            <i class="fas fa-thermometer-half me-2 text-info"></i>
+                                        {% else %}
+                                            <i class="fas fa-file-medical me-2 text-primary"></i>
+                                        {% endif %}
+                                        <strong>{{ report.report_type }}</strong>
+                                    </div>
+                                </td>
+                                <td>{{ report.upload_date.strftime('%b %d, %Y') }}</td>
+                                <td>
+                                    {% if report.health_score %}
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress me-2" style="width: 60px; height: 8px;">
+                                            <div class="progress-bar {% if report.health_score >= 70 %}bg-success{% elif report.health_score >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                                 style="width: {{ report.health_score }}%"></div>
+                                        </div>
+                                        <small class="text-muted">{{ report.health_score }}</small>
+                                    </div>
+                                    {% else %}
+                                    <small class="text-muted">N/A</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if report.status == 'analyzed' %}
+                                        <span class="badge bg-success">Analyzed</span>
+                                    {% elif report.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ report.status|title }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('view_report', report_id=report.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                        View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-file-medical fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Reports Yet</h5>
+                    <p class="text-muted mb-3">Upload your first medical report to get started</p>
+                    <a href="{{ url_for('upload_report') }}" class="btn btn-primary-custom">
+                        <i class="fas fa-cloud-upload-alt me-2"></i>
+                        Upload First Report
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions & Upcoming Appointments -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="card card-custom mb-4">
+            <div class="card-header card-header-custom">
+                <h6 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('upload_report') }}" class="btn btn-primary-custom">
+                        <i class="fas fa-cloud-upload-alt me-2"></i>
+                        Upload New Report
+                    </a>
+                    <a href="{{ url_for('patient_history') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-history me-2"></i>
+                        View Health History
+                    </a>
+                    <button class="btn btn-outline-success" onclick="addHealthMetric()">
+                        <i class="fas fa-plus me-2"></i>
+                        Add Health Metric
+                    </button>
+                    <button class="btn btn-outline-info" onclick="scheduleAppointment()">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        Schedule Appointment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Appointments -->
+        <div class="card card-custom">
+            <div class="card-header card-header-custom">
+                <h6 class="mb-0">
+                    <i class="fas fa-calendar-check me-2"></i>
+                    Upcoming Appointments
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if upcoming_appointments %}
+                <div class="appointment-list">
+                    {% for appointment in upcoming_appointments %}
+                    <div class="appointment-item p-3 mb-2 border rounded" style="border-color: var(--light-color) !important;">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ appointment.doctor_name }}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    {{ appointment.appointment_date.strftime('%b %d, %Y at %I:%M %p') }}
+                                </small>
+                                {% if appointment.appointment_type %}
+                                <div class="mt-1">
+                                    <span class="badge bg-light text-dark">{{ appointment.appointment_type }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Reschedule</a></li>
+                                    <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-times me-2"></i>Cancel</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar-check fa-2x text-muted mb-2"></i>
+                    <p class="text-muted mb-2">No upcoming appointments</p>
+                    <button class="btn btn-sm btn-primary-custom" onclick="scheduleAppointment()">
+                        Schedule Appointment
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Health Trends Chart -->
+{% if recent_reports %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card card-custom">
+            <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Health Score Trend
+                </h5>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-outline-light" onclick="updateChart('7d')">7D</button>
+                    <button class="btn btn-sm btn-outline-light active" onclick="updateChart('30d')">30D</button>
+                    <button class="btn btn-sm btn-outline-light" onclick="updateChart('90d')">90D</button>
+                    <button class="btn btn-sm btn-outline-light" onclick="updateChart('1y')">1Y</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="healthTrendChart" style="height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Health Metrics -->
+{% if recent_metrics %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card card-custom">
+            <div class="card-header card-header-custom">
+                <h5 class="mb-0">
+                    <i class="fas fa-heartbeat me-2"></i>
+                    Recent Health Metrics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for metric in recent_metrics[:4] %}
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="text-center p-3 border rounded" style="border-color: var(--light-color) !important;">
+                            {% if metric.metric_type == 'blood_pressure' %}
+                                <i class="fas fa-heartbeat fa-2x mb-2 text-danger"></i>
+                            {% elif metric.metric_type == 'weight' %}
+                                <i class="fas fa-weight fa-2x mb-2 text-warning"></i>
+                            {% elif metric.metric_type == 'glucose' %}
+                                <i class="fas fa-tint fa-2x mb-2 text-info"></i>
+                            {% else %}
+                                <i class="fas fa-thermometer-half fa-2x mb-2 text-primary"></i>
+                            {% endif %}
+                            <h5>{{ metric.value }} {{ metric.unit }}</h5>
+                            <p class="text-muted mb-1">{{ metric.metric_type|replace('_', ' ')|title }}</p>
+                            <small class="text-muted">{{ metric.recorded_date.strftime('%b %d') }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Health Tips & Alerts -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card card-custom">
+            <div class="card-header card-header-custom">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    Health Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="health-tips">
+                    <div class="tip-item mb-3 p-3 rounded" style="background-color: rgba(52, 152, 219, 0.1);">
+                        <i class="fas fa-apple-alt me-2" style="color: var(--success-color);"></i>
+                        <strong>Nutrition:</strong> Include more leafy greens in your diet for better iron absorption.
+                    </div>
+                    <div class="tip-item mb-3 p-3 rounded" style="background-color: rgba(39, 174, 96, 0.1);">
+                        <i class="fas fa-running me-2" style="color: var(--info-color);"></i>
+                        <strong>Exercise:</strong> 30 minutes of moderate activity daily can improve cardiovascular health.
+                    </div>
+                    <div class="tip-item p-3 rounded" style="background-color: rgba(243, 156, 18, 0.1);">
+                        <i class="fas fa-bed me-2" style="color: var(--warning-color);"></i>
+                        <strong>Sleep:</strong> Aim for 7-9 hours of quality sleep for optimal recovery.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card card-custom">
+            <div class="card-header card-header-custom">
+                <h6 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Health Alerts
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="healthAlerts">
+                    <!-- Dynamic alerts will be loaded here -->
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                        <p class="text-muted mb-0">No health alerts at this time</p>
+                        <small class="text-muted">Keep up the good work!</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Health Trend Chart
+{% if recent_reports %}
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('healthTrendChart').getContext('2d');
+    
+    // Sample data - in real app, this would come from the API
+    const healthTrendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [
+                {% for report in recent_reports %}
+                    '{{ report.upload_date.strftime("%b %d") }}'{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Health Score',
+                data: [
+                    {% for report in recent_reports %}
+                        {{ report.health_score if report.health_score else 0 }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                borderColor: 'rgb(52, 152, 219)',
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            elements: {
+                point: {
+                    radius: 6,
+                    hoverRadius: 8
+                }
+            }
+        }
+    });
+    
+    // Update chart function
+    window.updateChart = function(period) {
+        // Remove active class from all buttons
+        document.querySelectorAll('.btn-group .btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Add active class to clicked button
+        event.target.classList.add('active');
+        
+        // In a real app, this would fetch new data based on the period
+        console.log('Updating chart for period:', period);
+    };
+});
+{% endif %}
+
+// Dashboard Functions
+function refreshDashboard() {
+    // Show loading state
+    const refreshBtn = event.target;
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    refreshBtn.disabled = true;
+    
+    // Simulate refresh
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function addHealthMetric() {
+    // Open modal or redirect to add health metric page
+    alert('Health metric tracking feature coming soon!');
+}
+
+function scheduleAppointment() {
+    // Open appointment scheduling modal
+    alert('Appointment scheduling feature coming soon!');
+}
+
+// Load health alerts
+function loadHealthAlerts() {
+    // This would typically fetch from an API
+    // For now, we'll show a sample alert if health score is low
+    {% if avg_health_score and avg_health_score < 60 %}
+    const alertsContainer = document.getElementById('healthAlerts');
+    alertsContainer.innerHTML = `
+        <div class="alert alert-warning-custom" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Health Score Below Average:</strong> Consider scheduling a check-up with your healthcare provider.
+        </div>
+    `;
+    {% endif %}
+}
+
+// Auto-refresh dashboard data every 5 minutes
+setInterval(function() {
+    // In a real app, this would refresh specific sections without full page reload
+    console.log('Auto-refreshing dashboard data...');
+}, 300000);
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    loadHealthAlerts();
+    
+    // Add smooth animations
+    const cards = document.querySelectorAll('.stats-card, .card-custom');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

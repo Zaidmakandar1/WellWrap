@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}WellWrap - Your Health, Simplified{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="row align-items-center mb-5">
+    <div class="col-lg-6">
+        <div class="hero-content">
+            <h1 class="display-4 fw-bold mb-4" style="color: var(--primary-color);">
+                <span
+                    style="background: linear-gradient(135deg, var(--secondary-color), var(--info-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    WellWrap
+                </span>
+                <br><small style="font-size: 0.6em; color: #6c757d;">Your Health, Simplified</small>
+            </h1>
+            <p class="lead mb-4" style="color: #6c757d;">
+                Transform complex medical reports into easy-to-understand health insights with our AI-powered healthcare
+                platform.
+                Track your health journey, understand your test results, and take control of your wellness.
+            </p>
+
+            {% if current_user.is_authenticated %}
+            <div class="d-flex gap-3 mb-4">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary-custom btn-lg">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Go to Dashboard
+                </a>
+                <a href="{{ url_for('upload_report') }}" class="btn btn-success-custom btn-lg">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>
+                    Upload Report
+                </a>
+            </div>
+            {% else %}
+            <div class="d-flex gap-3 mb-4">
+                <a href="{{ url_for('register') }}" class="btn btn-primary-custom btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Get Started Free
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg"
+                    style="border-radius: 25px; border-width: 2px;">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Sign In
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Trust Indicators -->
+            <div class="d-flex align-items-center gap-4 text-muted">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-shield-alt me-2" style="color: var(--success-color);"></i>
+                    <small>HIPAA Compliant</small>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-lock me-2" style="color: var(--success-color);"></i>
+                    <small>Bank-level Security</small>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-certificate me-2" style="color: var(--warning-color);"></i>
+                    <small>FDA Approved</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="hero-image text-center">
+            <div class="card card-custom p-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div style="background: white; border-radius: 15px; padding: 2rem;">
+                    <i class="fas fa-heartbeat fa-5x mb-3" style="color: var(--danger-color);"></i>
+                    <h4 style="color: var(--primary-color);">AI Health Analysis</h4>
+                    <p class="text-muted mb-0">Instant medical report interpretation</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mb-5">
+    <div class="col-12 text-center mb-5">
+        <h2 class="fw-bold" style="color: var(--primary-color);">
+            <i class="fas fa-star me-2" style="color: var(--warning-color);"></i>
+            Platform Features
+        </h2>
+        <p class="lead text-muted">Everything you need to understand and manage your health</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="stats-card h-100">
+            <i class="fas fa-upload stats-icon"></i>
+            <h4>Smart Upload</h4>
+            <p class="text-muted">
+                Upload PDF medical reports and get instant AI analysis.
+                Our system automatically extracts and interprets key health data.
+            </p>
+            <ul class="list-unstyled text-start">
+                <li><i class="fas fa-check me-2" style="color: var(--success-color);"></i>PDF text extraction</li>
+                <li><i class="fas fa-check me-2" style="color: var(--success-color);"></i>Multi-format support</li>
+                <li><i class="fas fa-check me-2" style="color: var(--success-color);"></i>Secure file handling</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stats-card h-100">
+            <i class="fas fa-brain stats-icon"></i>
+            <h4>AI Analysis</h4>
+            <p class="text-muted">
+                Advanced AI interprets your medical reports and identifies potential health conditions
+                with personalized recommendations.
+            </p>
+            <ul class="list-unstyled text-start">
+                <li><i class="fas fa-check me-2" style="color: var(--success-color);"></i>Disease detection</li>
+                <li><i class="fas fa-check me-2" style="color: var(--success-color);"></i>Risk assessment</li>
+                <li><i class="fas fa-check me-2" style="color: var(--success-color);"></i>Health scoring</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stats-card h-100">
+            <i class="fas fa-chart-line stats-icon"></i>
+            <h4>Health Tracking</h4>
+            <p class="text-muted">
+                Track your health trends over time with interactive charts
+                and comprehensive patient history management.
+            </p>
+            <ul class="list-unstyled text-start">
+                <li><i class="fas fa-check me-2" style="color: var(--success-color);"></i>Timeline visualization</li>
+                <li><i class="fas fa-check me-2" style="color: var(--success-color);"></i>Trend analysis</li>
+                <li><i class="fas fa-check me-2" style="color: var(--success-color);"></i>Progress monitoring</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Section -->
+<div class="row mb-5">
+    <div class="col-12 text-center mb-4">
+        <h3 style="color: var(--primary-color);">Trusted by Healthcare Professionals</h3>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stats-card">
+            <div class="stats-number">10K+</div>
+            <div class="stats-label">Reports Analyzed</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stats-card">
+            <div class="stats-number">99.8%</div>
+            <div class="stats-label">Accuracy Rate</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stats-card">
+            <div class="stats-number">2K+</div>
+            <div class="stats-label">Active Users</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stats-card">
+            <div class="stats-number">24/7</div>
+            <div class="stats-label">Support</div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="row mb-5">
+    <div class="col-12 text-center mb-5">
+        <h3 style="color: var(--primary-color);">
+            <i class="fas fa-cogs me-2"></i>
+            How It Works
+        </h3>
+        <p class="lead text-muted">Get started in just 3 simple steps</p>
+    </div>
+
+    <div class="col-md-4 text-center mb-4">
+        <div class="position-relative">
+            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--secondary-color), var(--info-color)); color: white; font-size: 2rem; font-weight: bold;">
+                1
+            </div>
+            <h5>Upload Report</h5>
+            <p class="text-muted">
+                Upload your PDF medical report or lab results to our secure platform
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-4 text-center mb-4">
+        <div class="position-relative">
+            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--success-color), #2ecc71); color: white; font-size: 2rem; font-weight: bold;">
+                2
+            </div>
+            <h5>AI Analysis</h5>
+            <p class="text-muted">
+                Our AI analyzes your report and identifies key health insights and potential conditions
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-4 text-center mb-4">
+        <div class="position-relative">
+            <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--warning-color), #e67e22); color: white; font-size: 2rem; font-weight: bold;">
+                3
+            </div>
+            <h5>Get Insights</h5>
+            <p class="text-muted">
+                Receive easy-to-understand health insights and personalized recommendations
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+{% if not current_user.is_authenticated %}
+<div class="row">
+    <div class="col-12">
+        <div class="card card-custom text-center p-5"
+            style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">
+            <h3 class="mb-3">Ready to Take Control of Your Health?</h3>
+            <p class="lead mb-4 opacity-75">
+                Join thousands of users who have transformed their healthcare experience
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('register') }}" class="btn btn-light btn-lg"
+                    style="border-radius: 25px; color: var(--primary-color); font-weight: bold;">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Start Free Today
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg"
+                    style="border-radius: 25px; border-width: 2px;">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Sign In
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Demo Section for logged-in users -->
+{% if current_user.is_authenticated %}
+<div class="row">
+    <div class="col-12">
+        <div class="card card-custom text-center p-4">
+            <h4 class="mb-3" style="color: var(--primary-color);">
+                <i class="fas fa-rocket me-2"></i>
+                Welcome back, {{ current_user.first_name }}!
+            </h4>
+            <p class="text-muted mb-4">
+                Ready to analyze your medical reports? Upload a new report or view your health dashboard.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('upload_report') }}" class="btn btn-primary-custom btn-lg">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>
+                    Upload New Report
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg"
+                    style="border-radius: 25px; border-width: 2px;">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    View Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-content {
+        padding: 2rem 0;
+    }
+
+    .hero-image {
+        position: relative;
+    }
+
+    .hero-image::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--warning-color), #e67e22);
+        border-radius: 50%;
+        opacity: 0.1;
+        z-index: -1;
+    }
+
+    .hero-image::after {
+        content: '';
+        position: absolute;
+        bottom: -30px;
+        left: -30px;
+        width: 150px;
+        height: 150px;
+        background: linear-gradient(135deg, var(--success-color), #2ecc71);
+        border-radius: 50%;
+        opacity: 0.1;
+        z-index: -1;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+
+        100% {
+            transform: translateY(0px);
+        }
+    }
+
+    .hero-image .card {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .stats-card ul {
+        margin-top: 1rem;
+    }
+
+    .stats-card ul li {
+        padding: 0.25rem 0;
+    }
+</style>
+{% endblock %}

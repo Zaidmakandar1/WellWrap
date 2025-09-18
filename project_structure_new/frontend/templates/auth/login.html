@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Healthcare Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card card-custom">
+            <div class="card-header card-header-custom text-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Welcome Back
+                </h3>
+                <p class="mb-0 mt-2 opacity-75">Sign in to your healthcare account</p>
+            </div>
+            <div class="card-body p-5">
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user me-2"></i>Username
+                        </label>
+                        <input type="text" class="form-control form-control-lg" id="username" name="username" 
+                               required placeholder="Enter your username" 
+                               style="border-radius: 15px; border: 2px solid #e9ecef; padding: 15px;">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <div class="input-group">
+                            <input type="password" class="form-control form-control-lg" id="password" name="password" 
+                                   required placeholder="Enter your password"
+                                   style="border-radius: 15px 0 0 15px; border: 2px solid #e9ecef; padding: 15px;">
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()" 
+                                    style="border-radius: 0 15px 15px 0; border: 2px solid #e9ecef; border-left: none;">
+                                <i class="fas fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-primary-custom btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Sign In
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="mb-0">Don't have an account? 
+                            <a href="{{ url_for('register') }}" class="text-decoration-none fw-bold" 
+                               style="color: var(--secondary-color);">
+                                Create Account
+                            </a>
+                        </p>
+                    </div>
+                </form>
+
+                <!-- Demo Accounts Section -->
+                <hr class="my-4">
+                <div class="text-center">
+                    <h6 class="text-muted mb-3">Demo Accounts</h6>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="alert alert-info-custom" role="alert">
+                                <strong><i class="fas fa-info-circle me-2"></i>Try the demo:</strong><br>
+                                Username: <code>demo_patient</code><br>
+                                Password: <code>demo123</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="card card-custom mt-4">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-4">
+                    <i class="fas fa-star me-2" style="color: var(--warning-color);"></i>
+                    Platform Features
+                </h5>
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: var(--secondary-color);"></i>
+                            <h6>Upload Reports</h6>
+                            <small class="text-muted">Secure PDF upload & analysis</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-chart-line fa-2x mb-2" style="color: var(--success-color);"></i>
+                            <h6>Track Health</h6>
+                            <small class="text-muted">Monitor trends over time</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-stethoscope fa-2x mb-2" style="color: var(--danger-color);"></i>
+                            <h6>AI Analysis</h6>
+                            <small class="text-muted">Smart health insights</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function togglePassword() {
+        const passwordField = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Focus on username field when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('username').focus();
+    });
+
+    // Add demo account quick fill
+    function fillDemo() {
+        document.getElementById('username').value = 'demo_patient';
+        document.getElementById('password').value = 'demo123';
+    }
+</script>
+{% endblock %}

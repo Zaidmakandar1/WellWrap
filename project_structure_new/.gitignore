@@ -1,0 +1,300 @@
+# Medical Report Simplifier - Git Ignore File
+
+# ===== PYTHON =====
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+test-results/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# ===== APPLICATION SPECIFIC =====
+# Medical data and reports (NEVER commit sensitive medical data)
+data/raw/medical_reports/*
+!data/raw/medical_reports/.gitkeep
+uploads/
+!uploads/.gitkeep
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+healthcare.db
+instance/
+
+# Log files
+logs/
+*.log
+*.log.*
+
+# Backup files
+backups/
+*.backup
+*.bak
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ML Models (large files)
+ml/models/trained/*.pkl
+ml/models/trained/*.joblib
+ml/models/trained/*.h5
+ml/models/trained/*.pth
+ml/models/trained/*.onnx
+!ml/models/trained/.gitkeep
+
+# Processed data
+data/processed/*
+!data/processed/.gitkeep
+
+# ===== STREAMLIT =====
+.streamlit/secrets.toml
+.streamlit/config.toml
+
+# ===== FLASK =====
+instance/
+.webassets-cache
+
+# ===== DOCKER =====
+*.dockerignore
+
+# ===== EDITORS / IDEs =====
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Atom
+.atom/
+
+# ===== OPERATING SYSTEMS =====
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ===== CLOUD / DEPLOYMENT =====
+# AWS
+.aws/
+
+# Google Cloud
+gcloud/
+*.json.key
+service-account*.json
+
+# Azure
+.azure/
+
+# Heroku
+.heroku/
+
+# ===== SECURITY =====
+# API Keys and secrets
+*.key
+*.pem
+*.p12
+secrets.yaml
+secrets.json
+.secrets
+
+# SSL Certificates
+*.crt
+*.cer
+*.der
+
+# ===== MEDIA FILES =====
+# Large media files that shouldn't be in git
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.mkv
+
+# High resolution images
+*.tiff
+*.tif
+*.raw
+
+# ===== DOCUMENTATION =====
+# Generated documentation
+docs/_build/
+docs/build/
+site/
+
+# ===== MISCELLANEOUS =====
+# Compressed files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Personal notes
+notes.txt
+TODO.md
+NOTES.md

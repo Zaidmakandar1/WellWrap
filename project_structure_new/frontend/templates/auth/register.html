@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Healthcare Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card card-custom">
+            <div class="card-header card-header-custom text-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Create Account
+                </h3>
+                <p class="mb-0 mt-2 opacity-75">Join our healthcare platform</p>
+            </div>
+            <div class="card-body p-5">
+                <form method="POST" id="registerForm">
+                    <div class="row">
+                        <!-- First Name -->
+                        <div class="col-md-6 mb-4">
+                            <label for="first_name" class="form-label">
+                                <i class="fas fa-user me-2"></i>First Name
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="first_name" name="first_name" 
+                                   required placeholder="Enter first name"
+                                   style="border-radius: 15px; border: 2px solid #e9ecef; padding: 15px;">
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="col-md-6 mb-4">
+                            <label for="last_name" class="form-label">
+                                <i class="fas fa-user me-2"></i>Last Name
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="last_name" name="last_name" 
+                                   required placeholder="Enter last name"
+                                   style="border-radius: 15px; border: 2px solid #e9ecef; padding: 15px;">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Username -->
+                        <div class="col-md-6 mb-4">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-at me-2"></i>Username
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="username" name="username" 
+                                   required placeholder="Choose username"
+                                   style="border-radius: 15px; border: 2px solid #e9ecef; padding: 15px;">
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6 mb-4">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            <input type="email" class="form-control form-control-lg" id="email" name="email" 
+                                   required placeholder="Enter email address"
+                                   style="border-radius: 15px; border: 2px solid #e9ecef; padding: 15px;">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Date of Birth -->
+                        <div class="col-md-6 mb-4">
+                            <label for="date_of_birth" class="form-label">
+                                <i class="fas fa-calendar me-2"></i>Date of Birth
+                            </label>
+                            <input type="date" class="form-control form-control-lg" id="date_of_birth" name="date_of_birth" 
+                                   required style="border-radius: 15px; border: 2px solid #e9ecef; padding: 15px;">
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="col-md-6 mb-4">
+                            <label for="gender" class="form-label">
+                                <i class="fas fa-venus-mars me-2"></i>Gender
+                            </label>
+                            <select class="form-control form-control-lg" id="gender" name="gender"
+                                    style="border-radius: 15px; border: 2px solid #e9ecef; padding: 15px;">
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                                <option value="prefer_not_to_say">Prefer not to say</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="mb-4">
+                        <label for="phone" class="form-label">
+                            <i class="fas fa-phone me-2"></i>Phone Number (Optional)
+                        </label>
+                        <input type="tel" class="form-control form-control-lg" id="phone" name="phone" 
+                               placeholder="Enter phone number"
+                               style="border-radius: 15px; border: 2px solid #e9ecef; padding: 15px;">
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-4">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <div class="input-group">
+                            <input type="password" class="form-control form-control-lg" id="password" name="password" 
+                                   required placeholder="Create password" minlength="6"
+                                   style="border-radius: 15px 0 0 15px; border: 2px solid #e9ecef; padding: 15px;">
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()" 
+                                    style="border-radius: 0 15px 15px 0; border: 2px solid #e9ecef; border-left: none;">
+                                <i class="fas fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                        <div class="form-text mt-2">
+                            Password must be at least 6 characters long
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="mb-4">
+                        <label for="confirm_password" class="form-label">
+                            <i class="fas fa-lock me-2"></i>Confirm Password
+                        </label>
+                        <input type="password" class="form-control form-control-lg" id="confirm_password" 
+                               required placeholder="Confirm password"
+                               style="border-radius: 15px; border: 2px solid #e9ecef; padding: 15px;">
+                        <div class="invalid-feedback" id="passwordError">
+                            Passwords do not match
+                        </div>
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I agree to the <a href="#" class="text-decoration-none" style="color: var(--secondary-color);">Terms of Service</a> 
+                                and <a href="#" class="text-decoration-none" style="color: var(--secondary-color);">Privacy Policy</a>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Medical Disclaimer -->
+                    <div class="alert alert-warning-custom mb-4" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Medical Disclaimer:</strong> This platform is for educational purposes only. 
+                        Always consult healthcare professionals for medical advice.
+                    </div>
+
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-primary-custom btn-lg" id="submitBtn">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Create Account
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="mb-0">Already have an account? 
+                            <a href="{{ url_for('login') }}" class="text-decoration-none fw-bold" 
+                               style="color: var(--secondary-color);">
+                                Sign In
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Security Features -->
+        <div class="card card-custom mt-4">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-4">
+                    <i class="fas fa-shield-alt me-2" style="color: var(--success-color);"></i>
+                    Security & Privacy
+                </h5>
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-lock fa-2x mb-2" style="color: var(--success-color);"></i>
+                            <h6>Encrypted Data</h6>
+                            <small class="text-muted">All data encrypted in transit and at rest</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-user-shield fa-2x mb-2" style="color: var(--info-color);"></i>
+                            <h6>Privacy First</h6>
+                            <small class="text-muted">Your health data remains private</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-certificate fa-2x mb-2" style="color: var(--warning-color);"></i>
+                            <h6>HIPAA Compliant</h6>
+                            <small class="text-muted">Healthcare privacy standards</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function togglePassword() {
+        const passwordField = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('registerForm');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function validatePasswords() {
+            const passwordError = document.getElementById('passwordError');
+            
+            if (confirmPassword.value && password.value !== confirmPassword.value) {
+                confirmPassword.classList.add('is-invalid');
+                passwordError.style.display = 'block';
+                return false;
+            } else {
+                confirmPassword.classList.remove('is-invalid');
+                passwordError.style.display = 'none';
+                return true;
+            }
+        }
+
+        function validateForm() {
+            const isPasswordValid = validatePasswords();
+            const areRequiredFieldsFilled = form.checkValidity();
+            
+            submitBtn.disabled = !(isPasswordValid && areRequiredFieldsFilled);
+            
+            return isPasswordValid && areRequiredFieldsFilled;
+        }
+
+        // Real-time validation
+        password.addEventListener('input', validateForm);
+        confirmPassword.addEventListener('input', validateForm);
+        
+        // Validate all required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            field.addEventListener('input', validateForm);
+            field.addEventListener('change', validateForm);
+        });
+
+        form.addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+
+        // Focus on first name field
+        document.getElementById('first_name').focus();
+
+        // Initial validation
+        validateForm();
+    });
+
+    // Username availability check (placeholder for future implementation)
+    document.getElementById('username').addEventListener('blur', function() {
+        const username = this.value;
+        if (username.length >= 3) {
+            // Add visual feedback for username availability
+            // This would connect to an API endpoint in a real implementation
+        }
+    });
+</script>
+{% endblock %}
