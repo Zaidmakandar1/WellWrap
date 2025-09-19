@@ -174,9 +174,89 @@ def simple_analyze_report(text):
     
     return analysis
 
+def extract_text_from_pdf(file):
+    """Extract text from PDF file with proper error handling"""
+    try:
+        import PyPDF2
+        from io import BytesIO
+        
+        # Read file content
+        file.seek(0)  # Ensure we're at the beginning
+        file_content = file.read()
+        
+        if not file_content:
+            return None, "PDF file appears to be empty"
+        
+        # Create PDF reader
+        try:
+            pdf_reader = PyPDF2.PdfReader(BytesIO(file_content))
+        except Exception as e:
+            return None, f"Unable to read PDF file: {str(e)}"
+        
+        # Check if PDF has pages
+        if len(pdf_reader.pages) == 0:
+            return None, "PDF file contains no pages"
+        
+        # Extract text from all pages
+        text_parts = []
+        for i, page in enumerate(pdf_reader.pages):
+            try:
+                page_text = page.extract_text()
+                if page_text.strip():
+                    text_parts.append(page_text.strip())
+            except Exception as e:
+                print(f"Warning: Could not extract text from page {i+1}: {e}")
+                continue
+        
+        extracted_text = "\n\n".join(text_parts).strip()
+        
+        if not extracted_text:
+            return None, "No readable text found in the PDF. The PDF might be image-based or encrypted."
+        
+        return extracted_text, None
+        
+    except ImportError:
+        return None, "PDF text extraction requires PyPDF2 library. Please install it or upload as text file."
+    except Exception as e:
+        return None, f"Unexpected error extracting PDF: {str(e)}"
 
-
-# Text extraction is now handled directly in the upload route
+def extract_text_from_pdf_file(pdf_file):
+    """Extract text from an already opened PDF file object"""
+    try:
+        import PyPDF2
+        
+        # Create PDF reader from file object
+        try:
+            pdf_reader = PyPDF2.PdfReader(pdf_file)
+        except Exception as e:
+            return None, f"Unable to read PDF file: {str(e)}"
+        
+        # Check if PDF has pages
+        if len(pdf_reader.pages) == 0:
+            return None, "PDF file contains no pages"
+        
+        # Extract text from all pages
+        text_parts = []
+        for i, page in enumerate(pdf_reader.pages):
+            try:
+                page_text = page.extract_text()
+                if page_text.strip():
+                    text_parts.append(page_text.strip())
+            except Exception as e:
+                print(f"Warning: Could not extract text from page {i+1}: {e}")
+                continue
+        
+        extracted_text = "\n\n".join(text_parts).strip()
+        
+        if not extracted_text:
+            return None, "No readable text found in the PDF. The PDF might be image-based or encrypted."
+        
+        return extracted_text, None
+        
+    except ImportError:
+        return None, "PDF text extraction requires PyPDF2 library. Please install it or upload as text file."
+    except Exception as e:
+        return None, f"Unexpected error extracting PDF: {str(e)}"
 
 # Routes
 @app.route('/')
@@ -349,163 +429,42 @@ def upload_report():
             file_type = determine_file_type(filename)
             
             try:
-                print(f"Processing file: {filename} (Type: {file_type})")
-                
-                # Initialize enhanced analyzer with error handling
-                try:
-                    from backend.advanced_medical_analyzer import AdvancedMedicalAnalyzer
-                    analyzer = AdvancedMedicalAnalyzer()
-                    print("✅ Analyzer initialized successfully")
-                except Exception as init_error:
-                    print(f"❌ Analyzer initialization failed: {str(init_error)}")
-                    flash(f'System initialization error: {str(init_error)}', 'danger')
-                    os.remove(file_path)
-                    return redirect(request.url)
-                
                 # Reset file pointer
                 file.seek(0)
                 
-                # Extract text based on file type with fast fallback
-                extracted_text = ""
-                try:
-                    if file_type == 'pdf':
-                        print("Attempting PDF text extraction...")
-                        extracted_text = analyzer.extract_text_from_pdf(file)
-                    elif file_type == 'image':
-                        print("Attempting image text extraction...")
-                        # For images, try simple OCR first (faster)
-                        extracted_text = analyzer._extract_with_simple_ocr(file)
-                        print(f"Simple OCR result: {len(extracted_text)} characters")
-                        
-                        # If simple OCR didn't work well, try alternative methods
-                        if not extracted_text or len(extracted_text.strip()) < 20:
-                            print("Simple OCR insufficient, trying alternative methods...")
-                            try:
-                                file.seek(0)
-                                # Try EasyOCR first (doesn't require system Tesseract)
-                                alt_text = analyzer._extract_with_easyocr_simple(file)
-                                if alt_text and len(alt_text.strip()) > len(extracted_text.strip()):
-                                    extracted_text = alt_text
-                                    print(f"EasyOCR result: {len(extracted_text)} characters")
-                                else:
-                                    # Try basic Tesseract as last resort
-                                    file.seek(0)
-                                    tesseract_text = analyzer._extract_with_tesseract_basic(file)
-                                    if tesseract_text and len(tesseract_text.strip()) > len(extracted_text.strip()):
-                                        extracted_text = tesseract_text
-                                        print(f"Basic Tesseract result: {len(extracted_text)} characters")
-                            except Exception as e:
-                                print(f"Alternative OCR methods failed: {e}")
-                                
-                            # If still no text, provide helpful message
-                            if not extracted_text or len(extracted_text.strip()) < 10:
-                                extracted_text = """Could not extract text from image. 
-                                
-This may be because:
-1. Tesseract OCR is not installed on the system
-2. The image quality is too poor for text recognition
-3. The image doesn't contain readable text
-
-Please try:
-- Uploading a PDF version instead
-- Using a clearer, higher-resolution image
-- Ensuring the text in the image is clearly visible
-
-For now, you can manually enter the medical values from your report."""
-                    else:  # text file
-                        print("Attempting text file extraction...")
-                        file_content = file.read()
-                        # Try different encodings
-                        encodings = ['utf-8', 'utf-16', 'latin-1', 'cp1252']
-                        for encoding in encodings:
-                            try:
-                                extracted_text = file_content.decode(encoding, errors='ignore').strip()
-                                if extracted_text:
-                                    break
-                            except UnicodeDecodeError:
-                                continue
-                    
-                    print(f"Text extraction completed. Length: {len(extracted_text) if extracted_text else 0} characters")
-                    
-                except Exception as extraction_error:
-                    print(f"Text extraction error: {str(extraction_error)}")
-                    extracted_text = f"Error during text extraction: {str(extraction_error)}"
+                # Use fast extraction methods first, then fallback to advanced methods
+                extracted_text = extract_text_with_fallback(file, file_type, filename)
                 
-                # Clean up memory
-                import gc
-                gc.collect()
-                
-                # Check if we got meaningful text (allow helpful error messages through)
-                if not extracted_text or (len(extracted_text.strip()) < 10 and "Could not extract text" not in extracted_text):
+                if not extracted_text or len(extracted_text.strip()) < 10:
                     flash('Could not extract readable text from the uploaded file. Please ensure the file contains clear, readable medical report text.', 'danger')
                     os.remove(file_path)  # Clean up
                     return redirect(request.url)
                 
                 print(f"Extracted text length: {len(extracted_text)} characters")
                 
-                # Perform medical analysis
-                try:
-                    print("Starting medical data analysis...")
-                    test_results = analyzer.extract_medical_data(extracted_text)
-                    print(f"Extracted {len(test_results)} medical test results")
-                    
-                    disease_risks = analyzer.detect_diseases(test_results)
-                    print(f"Detected {len(disease_risks)} potential health conditions")
-                    
-                    health_summary = analyzer.generate_health_summary(test_results, disease_risks)
-                    print(f"Generated health summary with score: {health_summary.get('health_score', 'N/A')}")
-                    
-                    # Convert objects to JSON-serializable format
-                    serializable_data = analyzer.convert_to_json_serializable(test_results, disease_risks)
-                    print("Successfully converted data to JSON-serializable format")
-                    
-                except Exception as analysis_error:
-                    print(f"Medical analysis error: {str(analysis_error)}")
-                    # Provide fallback analysis
-                    test_results = []
-                    disease_risks = []
-                    health_summary = {
-                        'health_score': 50,
-                        'summary': f'Analysis partially completed. Error: {str(analysis_error)}',
-                        'recommendations': ['Please consult with your healthcare provider for proper interpretation']
-                    }
-                    serializable_data = {'test_results': [], 'disease_risks': []}
+                # Quick medical analysis (using simple analyzer for speed)
+                analysis_results = simple_analyze_report(extracted_text)
                 
-                # Combine health summary with serializable test data
-                analysis_results = {
-                    **health_summary,
-                    'test_results': serializable_data['test_results'],
-                    'disease_risks': serializable_data['disease_risks']
-                }
+                # Create medical report record
+                report = MedicalReport(
+                    user_id=current_user.id,
+                    filename=unique_filename,
+                    original_filename=filename,
+                    file_path=file_path,
+                    extracted_text=extracted_text,
+                    analysis_results=json.dumps(analysis_results),
+                    health_score=analysis_results.get('health_score'),
+                    report_date=datetime.now().date(),
+                    report_type=determine_report_type(filename),
+                    status='analyzed'
+                )
                 
-                # Create and save medical report record
-                try:
-                    print("Creating medical report record...")
-                    report = MedicalReport(
-                        user_id=current_user.id,
-                        filename=unique_filename,
-                        original_filename=filename,
-                        file_path=file_path,
-                        extracted_text=extracted_text[:10000],  # Limit text length for database
-                        analysis_results=json.dumps(analysis_results),
-                        health_score=health_summary.get('health_score', 50),
-                        report_date=datetime.now().date(),
-                        report_type=determine_report_type(filename),
-                        status='analyzed'
-                    )
-                    
-                    db.session.add(report)
-                    db.session.commit()
-                    
-                    print(f"Report saved successfully with ID: {report.id}")
-                    flash('Medical report uploaded and analyzed successfully!', 'success')
-                    return redirect(url_for('view_report', report_id=report.id))
-                    
-                except Exception as db_error:
-                    print(f"Database error: {str(db_error)}")
-                    db.session.rollback()
-                    flash(f'Report processed but database save failed: {str(db_error)}', 'warning')
-                    return redirect(request.url)
+                db.session.add(report)
+                db.session.commit()
+                
+                print(f"Report saved with ID: {report.id}")
+                flash('Medical report uploaded and analyzed successfully!', 'success')
+                return redirect(url_for('view_report', report_id=report.id))
                 
             except Exception as e:
                 print(f"Error processing file: {str(e)}")
@@ -643,4 +602,4 @@ if __name__ == '__main__':
     print("📋 Upload medical reports and get AI analysis!")
     print("💾 All user data persists between sessions")
     print("Press Ctrl+C to stop")
-    app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)
+    app.run(debug=True, host='0.0.0.0', port=5000)

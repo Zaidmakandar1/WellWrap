@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  wellwrap:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - SECRET_KEY=your-secret-key-change-in-production
+      - DATABASE_URL=sqlite:///healthcare.db
+    volumes:
+      - ./uploads:/app/uploads
+      - ./instance:/app/instance
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/test"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Add PostgreSQL for production
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=wellwrap
+      - POSTGRES_USER=wellwrap
+      - POSTGRES_PASSWORD=wellwrap_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    profiles:
+      - production
+
+  # Optional: Add Redis for caching
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    profiles:
+      - production
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: wellwrap-network

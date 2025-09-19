@@ -1,6 +1,3 @@
-# Medical Report Simplifier - Git Ignore File
-
-# ===== PYTHON =====
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -31,6 +28,8 @@ share/python-wheels/
 MANIFEST
 
 # PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -51,7 +50,29 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-test-results/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -64,9 +85,13 @@ ipython_config.py
 .python-version
 
 # pipenv
-Pipfile.lock
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
 
-# PEP 582
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
 __pypackages__/
 
 # Celery stuff
@@ -103,198 +128,47 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# ===== APPLICATION SPECIFIC =====
-# Medical data and reports (NEVER commit sensitive medical data)
-data/raw/medical_reports/*
-!data/raw/medical_reports/.gitkeep
-uploads/
-!uploads/.gitkeep
-
-# Database files
+# WellWrap specific
 *.db
-*.sqlite
-*.sqlite3
 healthcare.db
 instance/
-
-# Log files
+uploads/*
+!uploads/.gitkeep
 logs/
 *.log
-*.log.*
 
-# Backup files
-backups/
-*.backup
-*.bak
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.temp
-
-# ML Models (large files)
-ml/models/trained/*.pkl
-ml/models/trained/*.joblib
-ml/models/trained/*.h5
-ml/models/trained/*.pth
-ml/models/trained/*.onnx
-!ml/models/trained/.gitkeep
-
-# Processed data
-data/processed/*
-!data/processed/.gitkeep
-
-# ===== STREAMLIT =====
-.streamlit/secrets.toml
-.streamlit/config.toml
-
-# ===== FLASK =====
-instance/
-.webassets-cache
-
-# ===== DOCKER =====
-*.dockerignore
-
-# ===== EDITORS / IDEs =====
-# VSCode
+# IDE
 .vscode/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# PyCharm
 .idea/
-*.iml
-*.iws
-
-# Vim
 *.swp
 *.swo
 *~
 
-# Emacs
-*~
-\#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-*.elc
-auto-save-list
-tramp
-.\#*
-
-# Sublime Text
-*.sublime-workspace
-*.sublime-project
-
-# Atom
-.atom/
-
-# ===== OPERATING SYSTEMS =====
-# macOS
+# OS
 .DS_Store
-.AppleDouble
-.LSOverride
-Icon?
+.DS_Store?
 ._*
-.DocumentRevisions-V100
-.fseventsd
 .Spotlight-V100
-.TemporaryItems
 .Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-
-# Windows
-Thumbs.db
-Thumbs.db:encryptable
 ehthumbs.db
-ehthumbs_vista.db
-*.stackdump
-[Dd]esktop.ini
-$RECYCLE.BIN/
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
-*.lnk
+Thumbs.db
 
-# Linux
-*~
-.fuse_hidden*
-.directory
-.Trash-*
-.nfs*
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
 
-# ===== CLOUD / DEPLOYMENT =====
-# AWS
-.aws/
+# ML Models (if large)
+ml/models/trained/*.pkl
+ml/models/trained/*.joblib
+ml/models/trained/*.h5
 
-# Google Cloud
-gcloud/
-*.json.key
-service-account*.json
+# Test files
+test_*.py
+*_test.py
+testing/
 
-# Azure
-.azure/
-
-# Heroku
-.heroku/
-
-# ===== SECURITY =====
-# API Keys and secrets
-*.key
-*.pem
-*.p12
-secrets.yaml
-secrets.json
-.secrets
-
-# SSL Certificates
-*.crt
-*.cer
-*.der
-
-# ===== MEDIA FILES =====
-# Large media files that shouldn't be in git
-*.mp4
-*.avi
-*.mov
-*.wmv
-*.flv
-*.webm
-*.mkv
-
-# High resolution images
-*.tiff
-*.tif
-*.raw
-
-# ===== DOCUMENTATION =====
-# Generated documentation
-docs/_build/
+# Documentation builds
 docs/build/
-site/
-
-# ===== MISCELLANEOUS =====
-# Compressed files
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
-
-# Personal notes
-notes.txt
-TODO.md
-NOTES.md
+docs/_build/

@@ -342,7 +342,10 @@ function handleFileSelect(file) {
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
     const maxSize = 16 * 1024 * 1024; // 16MB
     
-    if (!allowedTypes.includes(file.type)) {
+    // Some browsers may not provide MIME for certain files; allow by extension fallback
+    const ext = (file.name.split('.').pop() || '').toLowerCase();
+    const typeOk = allowedTypes.includes(file.type) || ['pdf', 'jpg', 'jpeg', 'png'].includes(ext);
+    if (!typeOk) {
         alert('Please select a PDF, JPG, JPEG, or PNG file.');
         return;
     }
@@ -354,45 +357,61 @@ function handleFileSelect(file) {
     
     selectedFile = file;
     
-    // Display file info
-    document.getElementById('fileName').textContent = file.name;
-    document.getElementById('fileSize').textContent = formatFileSize(file.size);
-    document.getElementById('fileType').textContent = file.type.split('/')[1].toUpperCase();
+    // Display file info (guard DOM lookups)
+    const nameEl = document.getElementById('fileName');
+    if (nameEl) nameEl.textContent = file.name;
+    const sizeEl = document.getElementById('fileSize');
+    if (sizeEl) sizeEl.textContent = formatFileSize(file.size);
+    const typeEl = document.getElementById('fileType');
+    const typeText = (file.type && file.type.includes('/')) ? file.type.split('/').pop().toUpperCase() : ext.toUpperCase();
+    if (typeEl) typeEl.textContent = typeText;
     
     // Show file info and options
-    document.getElementById('fileInfo').classList.remove('d-none');
-    document.getElementById('uploadOptions').style.display = 'block';
-    document.getElementById('submitSection').style.display = 'block';
+    const infoEl = document.getElementById('fileInfo');
+    if (infoEl) infoEl.classList.remove('d-none');
+    const optsEl = document.getElementById('uploadOptions');
+    if (optsEl) optsEl.style.display = 'block';
+    const submitEl = document.getElementById('submitSection');
+    if (submitEl) submitEl.style.display = 'block';
     
     // Hide upload content
-    document.getElementById('uploadContent').style.display = 'none';
+    const contentEl = document.getElementById('uploadContent');
+    if (contentEl) contentEl.style.display = 'none';
     
-    // Update upload area appearance
+    // Update upload area appearance (leave file input intact; only replace inner of uploadArea)
     const uploadArea = document.getElementById('uploadArea');
-    uploadArea.style.minHeight = 'auto';
-    uploadArea.style.padding = '2rem';
-    uploadArea.innerHTML = `
+    if (uploadArea) {
+        uploadArea.style.minHeight = 'auto';
+        uploadArea.style.padding = '2rem';
+        uploadArea.innerHTML = `
         <div class="text-center">
             <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
             <h5 class="text-success">File Ready for Analysis</h5>
             <p class="text-muted mb-0">${file.name}</p>
         </div>
     `;
+    }
 }
 
 function clearFile() {
     selectedFile = null;
-    document.getElementById('fileInput').value = '';
-    document.getElementById('fileInfo').classList.add('d-none');
-    document.getElementById('uploadOptions').style.display = 'none';
-    document.getElementById('submitSection').style.display = 'none';
-    document.getElementById('uploadContent').style.display = 'block';
+    const inputEl = document.getElementById('fileInput');
+    if (inputEl) inputEl.value = '';
+    const infoEl = document.getElementById('fileInfo');
+    if (infoEl) infoEl.classList.add('d-none');
+    const optsEl = document.getElementById('uploadOptions');
+    if (optsEl) optsEl.style.display = 'none';
+    const submitEl = document.getElementById('submitSection');
+    if (submitEl) submitEl.style.display = 'none';
+    const contentEl = document.getElementById('uploadContent');
+    if (contentEl) contentEl.style.display = 'block';
     
     // Reset upload area
     const uploadArea = document.getElementById('uploadArea');
-    uploadArea.style.minHeight = '300px';
-    uploadArea.style.padding = '';
-    uploadArea.innerHTML = `
+    if (uploadArea) {
+        uploadArea.style.minHeight = '300px';
+        uploadArea.style.padding = '';
+        uploadArea.innerHTML = `
         <div id="uploadContent">
             <i class="fas fa-cloud-upload-alt upload-icon"></i>
             <h4>Drag & Drop Your Report Here</h4>
@@ -403,6 +422,7 @@ function clearFile() {
             </p>
         </div>
     `;
+    }
 }
 
 function formatFileSize(bytes) {
