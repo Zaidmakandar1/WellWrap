@@ -16,23 +16,81 @@ import uuid
 from pathlib import Path
 import sqlite3
 
+# Add: safe JSON encoding utilities
+try:
+    import numpy as _np  # type: ignore
+except Exception:  # pragma: no cover
+    _np = None  # Fallback if numpy not installed
+
+# Use the real analyzer implementation
+from advanced_medical_analyzer import AdvancedMedicalAnalyzer
+
+
+def _safe_default_serializer(obj):
+    """Serialize objects not natively supported by json.
+    Handles numpy types, sets, bytes, datetime, and falls back to str.
+    """
+    # numpy types
+    if _np is not None:
+        if isinstance(obj, (_np.integer,)):
+            return int(obj)
+        if isinstance(obj, (_np.floating,)):
+            return float(obj)
+        if isinstance(obj, (_np.bool_,)):
+            return bool(obj)
+        if isinstance(obj, _np.ndarray):
+            return obj.tolist()
+    # Python sets
+    if isinstance(obj, set):
+        return list(obj)
+    # bytes
+    if isinstance(obj, (bytes, bytearray)):
+        try:
+            return obj.decode("utf-8")
+        except Exception:
+            return obj.hex()
+    # datetime/date
+    if hasattr(obj, "isoformat"):
+        try:
+            return obj.isoformat()
+        except Exception:
+            pass
+    # dataclasses
+    try:
+        from dataclasses import asdict, is_dataclass
+        if is_dataclass(obj):
+            return asdict(obj)
+    except Exception:
+        pass
+    # Fallback string conversion
+    return str(obj)
+
+
+def safe_json_dumps(data, **kwargs):
+    """json.dumps with a default serializer that handles common non-JSON types."""
+    if "default" not in kwargs:
+        kwargs["default"] = _safe_default_serializer
+    # Ensure ASCII disabled for symbols/emojis used in UI
+    kwargs.setdefault("ensure_ascii", False)
+    return json.dumps(data, **kwargs)
+
 # Import our medical analyzer from the new ML structure
 # from ml.data_processing.report_processor import ReportProcessor
 # from ml.data_processing.simplifier import MedicalReportSimplifier
 
 # Temporary placeholder until ML services are properly integrated
-class AdvancedMedicalAnalyzer:
-    def extract_text_from_pdf(self, file):
-        return "Sample extracted text - ML integration pending"
+# class AdvancedMedicalAnalyzer:
+#     def extract_text_from_pdf(self, file):
+#         return "Sample extracted text - ML integration pending"
     
-    def extract_medical_data(self, text):
-        return []
+#     def extract_medical_data(self, text):
+#         return []
     
-    def detect_diseases(self, test_results):
-        return []
+#     def detect_diseases(self, test_results):
+#         return []
     
-    def generate_health_summary(self, test_results, disease_risks):
-        return {"health_score": 75, "summary": "Analysis pending ML integration"}
+#     def generate_health_summary(self, test_results, disease_risks):
+#         return {"health_score": 75, "summary": "Analysis pending ML integration"}
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
@@ -294,8 +352,8 @@ def upload_report():
                     original_filename=filename,
                     file_path=file_path,
                     extracted_text=extracted_text,
-                    analysis_results=json.dumps(health_summary),
-                    test_results=json.dumps([{
+                    analysis_results=safe_json_dumps(health_summary),
+                    test_results=safe_json_dumps([{
                         'test_name': r.test_name,
                         'value': r.value,
                         'unit': r.unit,
@@ -303,7 +361,7 @@ def upload_report():
                         'status': r.status,
                         'severity_score': r.severity_score
                     } for r in test_results]),
-                    disease_risks=json.dumps([{
+                    disease_risks=safe_json_dumps([{
                         'disease_name': d.disease_name,
                         'risk_level': d.risk_level,
                         'confidence': d.confidence,
